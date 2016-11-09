@@ -63,6 +63,25 @@ export function unlikeFeedItem(feedItemId, userId, cb) {
     }
     emulateServerReturn(feedItem.likeCounter.map((userId) => readDocument('users', userId)), cb);
 }
+
+export function likeComment(feedItemId, commentId, userId, cb) {
+    commentId -=1;
+    var feedItem = readDocument('feedItems', feedItemId);
+    feedItem.comments[commentId].likeCounter.push(userId);
+    writeDocument('feedItems', feedItem);
+    emulateServerReturn(feedItem.comments[commentId].likeCounter.map((userId) => readDocument('users', userId)), cb);
+}
+
+export function unlikeComment(feedItemId, commentId, userId, cb) {
+    commentId -=1;
+    var feedItem = readDocument('feedItems', feedItemId);
+    var userIndex = feedItem.comments[commentId].likeCounter.indexOf(userId);
+    if (userIndex !== -1) {
+        feedItem.comments[commentId].likeCounter.splice(userIndex, 1);
+        writeDocument('feedItems', feedItem);
+    }
+    emulateServerReturn(feedItem.comments[commentId].likeCounter.map((userId) => readDocument('users', userId)), cb);
+}
 /**
 * Emulates a REST call to get the feed data for a particular user.
 * @param user The ID of the user whose feed we are requesting.
